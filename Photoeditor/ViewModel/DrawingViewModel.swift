@@ -7,6 +7,7 @@
 
 import Foundation
 import PencilKit
+import SwiftUI
 
 class DrawingViewModel:ObservableObject{
     @Published var showImagePicker :Bool = false
@@ -15,8 +16,22 @@ class DrawingViewModel:ObservableObject{
     @Published var canvas = PKCanvasView()
     @Published var toolPicker = PKToolPicker()
     
+    @Published var textBoxes: [TextBox] = []
+    @Published var addNewBox: Bool = false
+    @Published var currentIndex: Int = 0
+    
     func cancelEditing(){
         imageData = Data(count: 0)
         canvas = PKCanvasView()
+    }
+    
+    func cancelTextView(){
+        toolPicker.setVisible(true, forFirstResponder: canvas)
+        canvas.becomeFirstResponder()
+        withAnimation {
+           
+            addNewBox = false
+        }
+        textBoxes.removeLast()
     }
 }

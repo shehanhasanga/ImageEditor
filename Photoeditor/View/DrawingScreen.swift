@@ -9,6 +9,13 @@ import SwiftUI
 import PencilKit
 
 struct DrawingScreen: View {
+    func getIndex(textBox:TextBox) -> Int{
+        let index = model.textBoxes.firstIndex { box in
+            return box.id == textBox.id
+        } ?? 0
+        return index
+    }
+    
     @EnvironmentObject var model : DrawingViewModel
     var body: some View {
         ZStack{
@@ -20,6 +27,24 @@ struct DrawingScreen: View {
                 return AnyView(
                     ZStack{
                         CanvasView(canvas: $model.canvas, imageData: $model.imageData, toolPicker: $model.toolPicker,rect: size)
+                        
+                        ForEach(model.textBoxes){
+                            box in
+                            Text(box.text)
+                                .font(.system(size:35))
+                                .fontWeight(box.isBool ? .bold : .none)
+                                .foregroundColor(box.textColot)
+                                .offset(box.offset)
+                                .gesture(DragGesture().onChanged({ val in
+                                    let current = val.translation
+                                    let lastOffset = box.lastOffset
+                                    let newTransplation = CGSize(width: lastOffset.width + current.width, height: lastOffset.height + current.height)
+                                    model.textBoxes[getIndex(textBox: box)].offset = newTransplation
+                                }).onEnded({ val in
+                                    model.textBoxes[getIndex(textBox: box)].lastOffset = val.translation
+                                })
+                                )
+                        }
                     }
                     
                 
@@ -38,7 +63,15 @@ struct DrawingScreen: View {
             }
             ToolbarItem( placement: .navigationBarTrailing) {
                 Button{
-                    
+                    model.textBoxes.append(TextBox())
+                    model.currentIndex = model.textBoxes.count - 1
+                    withAnimation {
+                        model.addNewBox.toggle()
+                        model.toolPicker.setVisible(false, forFirstResponder: model.canvas)
+                        model.canvas.resignFirstResponder()
+                      
+                    }
+                   
                 }label: {
                     Image(systemName: "plus")
                 }
