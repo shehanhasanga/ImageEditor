@@ -15,9 +15,8 @@ struct Home: View {
             VStack{
                 
                 if let image = UIImage(data: viewModel.imageData){
-                    Image(uiImage: image)
-                        .resizable()
-                        .aspectRatio( contentMode: .fit)
+                   DrawingScreen()
+                        .environmentObject(viewModel)
                         .toolbar {
                             ToolbarItem( placement: .navigationBarLeading) {
                                 Button{
