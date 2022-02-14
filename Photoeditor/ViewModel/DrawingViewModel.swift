@@ -13,8 +13,10 @@ class DrawingViewModel:ObservableObject{
     @Published var imageData :Data = Data(count: 0)
     
     @Published var canvas = PKCanvasView()
+    @Published var toolPicker = PKToolPicker()
     
     func cancelEditing(){
         imageData = Data(count: 0)
+        canvas = PKCanvasView()
     }
 }
