@@ -51,7 +51,9 @@ struct Home: View {
                 Color.black.opacity(0.7)
                     .ignoresSafeArea()
                 TextField("Type Here..",text: $viewModel.textBoxes[viewModel.currentIndex].text)
-                    .font(.system(size: 35))
+                    .font(.system(size: 35,weight :
+                            viewModel.textBoxes[viewModel.currentIndex].isBool ?  .bold : .regular)
+                    )
                     .colorScheme(.dark)
                     .foregroundColor(viewModel.textBoxes[viewModel.currentIndex].textColot)
                     .padding()
@@ -59,6 +61,7 @@ struct Home: View {
                 
                 HStack{
                     Button{
+                        viewModel.textBoxes[viewModel.currentIndex].isAdded = true
                         viewModel.toolPicker.setVisible(true, forFirstResponder: viewModel.canvas)
                         viewModel.canvas.becomeFirstResponder()
                         withAnimation {
@@ -82,8 +85,18 @@ struct Home: View {
                     }
                 }
                 .overlay(
-                    ColorPicker("", selection: $viewModel.textBoxes[viewModel.currentIndex].textColot)
-                        .labelsHidden()
+                    HStack(spacing:15){
+                        ColorPicker("", selection: $viewModel.textBoxes[viewModel.currentIndex].textColot)
+                            .labelsHidden()
+                        Button{
+                            viewModel.textBoxes[viewModel.currentIndex].isBool.toggle()
+                        }label: {
+                            Text(viewModel.textBoxes[viewModel.currentIndex].isBool ? "Normal" : "Bold")
+                                .fontWeight(.bold)
+                                .foregroundColor(.white)
+                        }
+                    }
+                    
                 )
                 .frame(maxHeight:.infinity, alignment: .top)
             }
@@ -91,6 +104,9 @@ struct Home: View {
         }
         .sheet(isPresented: $viewModel.showImagePicker) {
             ImagePicker(showPicker: $viewModel.showImagePicker, imageData: $viewModel.imageData)
+        }
+        .alert(isPresented: $viewModel.showAlert) {
+            Alert(title: Text("Message"), message: Text(viewModel.message) , dismissButton: .destructive(Text("Ok")))
         }
        
     }

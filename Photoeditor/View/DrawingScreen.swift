@@ -21,12 +21,17 @@ struct DrawingScreen: View {
         ZStack{
             GeometryReader{
                 geometry -> AnyView in
-                let size = geometry.frame(in: .global).size
-                
+                let size = geometry.frame(in: .global)
+                DispatchQueue.main.async {
+                    if model.rect == .zero {
+                        model.rect = size
+                    }
+                    
+                }
                 
                 return AnyView(
                     ZStack{
-                        CanvasView(canvas: $model.canvas, imageData: $model.imageData, toolPicker: $model.toolPicker,rect: size)
+                        CanvasView(canvas: $model.canvas, imageData: $model.imageData, toolPicker: $model.toolPicker,rect: size.size)
                         
                         ForEach(model.textBoxes){
                             box in
@@ -44,6 +49,14 @@ struct DrawingScreen: View {
                                     model.textBoxes[getIndex(textBox: box)].lastOffset = val.translation
                                 })
                                 )
+                                .onLongPressGesture {
+                                    model.toolPicker.setVisible(true, forFirstResponder: model.canvas)
+                                    model.canvas.resignFirstResponder()
+                                    model.currentIndex = getIndex(textBox: box)
+                                    withAnimation {
+                                        model.addNewBox = true
+                                    }
+                                }
                         }
                     }
                     
@@ -55,7 +68,7 @@ struct DrawingScreen: View {
         .toolbar {
             ToolbarItem( placement: .navigationBarTrailing) {
                 Button{
-                    
+                    model.saveImage()
                 }label: {
                     Text("Save")
                 }
